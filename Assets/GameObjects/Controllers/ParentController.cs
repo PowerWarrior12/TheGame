@@ -20,18 +20,15 @@ namespace Assets.GameObjects.Controllers
         }
         private void Update()
         {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            Debug.DrawRay(ray.origin, ray.direction * 10);
-            RaycastHit hitData;
-            if (Physics.Raycast(ray, out hitData))
+            if (Input.GetKeyDown(KeyCode.Mouse0))
             {
-                workController.ObserveMousePosition(hitData.point);
-                if (Input.GetKeyDown(KeyCode.Mouse0))
-                {
-                    workController.Click(hitData);
-                    UpdateController(ControllerAction.SIMPLECLICK);
-                }
+                if (workController.Click()) UpdateController(ControllerAction.SIMPLECLICK);
             }
+            if (Input.GetKeyUp(KeyCode.Mouse0))
+            {
+                if (workController.ClickUp()) UpdateController(ControllerAction.SIMPLECLICKUP);
+            }
+            workController.ObserveMousePosition();
         }
 
         public void OnMenuClick()
@@ -49,11 +46,15 @@ namespace Assets.GameObjects.Controllers
                 case ControllerAction.SIMPLECLICK:
                     SwapWorkController(defaultController);
                     break;
+                case ControllerAction.SIMPLECLICKUP:
+                                        SwapWorkController(defaultController);
+                    break;
             }
         }
 
         private void SwapWorkController(IController newController)
         {
+            if (workController == newController) return;
             workController.StopWork();
             workController = newController;
             workController.PrepareToWork();
@@ -61,7 +62,7 @@ namespace Assets.GameObjects.Controllers
 
         enum ControllerAction
         { 
-            MENUCLICK, SIMPLECLICK
+            MENUCLICK, SIMPLECLICK, SIMPLECLICKUP
         }
     }
 }

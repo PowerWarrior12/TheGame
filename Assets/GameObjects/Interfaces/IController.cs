@@ -11,9 +11,15 @@ namespace Assets.GameObjects.Interfaces
     [Serializable]
     abstract class IController: MonoBehaviour
     {
-        public abstract bool Click(RaycastHit hit);
-        public abstract bool ObserveMousePosition(Vector3 position);
-        public abstract void PrepareToWork();
+        //Флаг для обозначение окончания работы контроллером
+        protected bool endWork = false;
+        public abstract bool Click();
+        public abstract bool ClickUp();
+        public abstract bool ObserveMousePosition();
+        public virtual void PrepareToWork()
+        {
+            endWork = false;
+        }    
         public abstract void StopWork();
         public abstract bool UpdateTargetGameObject(IGameObject gameObject);
 

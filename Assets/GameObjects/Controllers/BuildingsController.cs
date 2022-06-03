@@ -11,26 +11,31 @@ namespace Assets.GameObjects.Controllers
         [SerializeField]
         private GameObjectShadow gameObjectShadow;
         [SerializeField]
-        private Camera _camera;
-        [SerializeField]
         private GameObjectsGenerator generator;
         [SerializeField]
         private LayerMask gameObjectMask;
         [SerializeField]
         private LayerMask groundMask;
-        override public bool Click(RaycastHit hit)
+        override public bool Click()
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            Debug.DrawRay(ray.origin, ray.direction * 100, Color.red);
             RaycastHit hitData;
-            if (Physics.Raycast(ray, out hitData, 100, groundMask) && !Physics.Raycast(ray, out hitData, 100, gameObjectMask))
+            if (Physics.Raycast(ray, out hitData, 100, groundMask) && gameObjectShadow.CheckErrorStatus())
             {
                 gameObjectShadow.SetActive(false);
-                generator.CreateBuildingPrefab(hit.point);
+                generator.CreateBuildingPrefab(hitData.point);
+                endWork = true;
             }
-            return true;
+            return false;
         }
 
-        override public bool ObserveMousePosition(Vector3 position)
+        public override bool ClickUp()
+        {
+            return endWork;
+        }
+
+        override public bool ObserveMousePosition()
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hitData;
@@ -39,12 +44,13 @@ namespace Assets.GameObjects.Controllers
                 gameObjectShadow.UpdatePosition(hitData.point);
             }
 
-            return true;
+            return false;
         }
 
         override public void PrepareToWork()
         {
-            Ray ray = new Ray(_camera.transform.position, _camera.transform.forward);
+            base.PrepareToWork();
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hitData;
             if (Physics.Raycast(ray, out hitData, 100, groundMask))
             {

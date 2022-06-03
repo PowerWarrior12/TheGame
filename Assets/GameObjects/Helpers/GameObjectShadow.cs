@@ -59,5 +59,10 @@ namespace Assets.GameObjects.Helpers
             if (status) meshRenderer.material = errorMaterial;
             else meshRenderer.material = defaultMaterial;
         }
+
+        public bool CheckErrorStatus()
+        {
+            return countOfCollisions <= 0;
+        }
     }
 }
