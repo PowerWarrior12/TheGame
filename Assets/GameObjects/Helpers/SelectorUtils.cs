@@ -58,14 +58,12 @@ namespace Assets.GameObjects.Helpers
             var v2 = Camera.main.ScreenToViewportPoint(screenPosition2);
             var min = Vector3.Min(v1, v2);
             var max = Vector3.Max(v1, v2);
-
             min.z = camera.nearClipPlane;
             max.z = camera.farClipPlane;
 
             var bounds = new Bounds();
             bounds.SetMinMax(min, max);
             return bounds;
-
         }
     }
 }

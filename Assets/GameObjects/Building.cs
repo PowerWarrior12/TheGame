@@ -21,7 +21,7 @@ public class Building : MonoBehaviour, IBuilding
 
     public void Select()
     {
-        isSelected = !isSelected;
+        isSelected = true;
         selectingObject.SetVisible(isSelected);
     }
 

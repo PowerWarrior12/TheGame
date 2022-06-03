@@ -12,10 +12,11 @@ namespace Assets.GameObjects.Controllers
         private Selector selector;
         [SerializeField]
         private LayerMask gameObjectMask;
-        private ArrayList selectedGameObjects = new ArrayList();
+        [SerializeField]
+        private GameObjectsManager gameObjectsManager;
         private void Start()
         {
-            selector.SetOnSelect(SelectObject);
+            selector.Initializing(gameObjectsManager);
         }
 
         public override bool Click()
@@ -26,14 +27,11 @@ namespace Assets.GameObjects.Controllers
             if (Physics.Raycast(ray, out hitData, 100, gameObjectMask))
             {
                 IGameObject clickedGameObject = hitData.transform.GetComponent<IGameObject>();
-                SelectObject(clickedGameObject);
+                selector.ClickOnGameObject(clickedGameObject);
             }
             else
             {
-                foreach (IGameObject gameObject in selectedGameObjects)
-                {
-                    gameObject.Deselect();
-                }
+                selector.ClickNearGameObjects();
             }
             return false;
         }
@@ -57,15 +55,6 @@ namespace Assets.GameObjects.Controllers
         public override void StopWork()
         {
             selector.EndSelected();
-        }
-
-        private void SelectObject(IGameObject gameObject)
-        {
-            if (gameObject != null)
-            {
-                selectedGameObjects.Add(gameObject);
-                gameObject.Select();
-            }
         }
 
         public override bool UpdateTargetGameObject(IGameObject gameObject)

@@ -11,7 +11,7 @@ namespace Assets.GameObjects.Controllers
         [SerializeField]
         private GameObjectShadow gameObjectShadow;
         [SerializeField]
-        private GameObjectsGenerator generator;
+        private GameObjectsManager gameObjectsManager;
         [SerializeField]
         private LayerMask gameObjectMask;
         [SerializeField]
@@ -24,7 +24,7 @@ namespace Assets.GameObjects.Controllers
             if (Physics.Raycast(ray, out hitData, 100, groundMask) && gameObjectShadow.CheckErrorStatus())
             {
                 gameObjectShadow.SetActive(false);
-                generator.CreateBuildingPrefab(hitData.point);
+                gameObjectsManager.CreateBuilding(hitData.point);
                 endWork = true;
             }
             return false;

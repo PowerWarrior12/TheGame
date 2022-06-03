@@ -1,5 +1,6 @@
 ﻿using Assets.GameObjects.Interfaces;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,13 +11,17 @@ namespace Assets.GameObjects.Helpers
 {
     internal class Selector: MonoBehaviour
     {
-        private Action<IGameObject> onSelect;
+        [SerializeField]
+        private Collider _collider;
+        private GameObjectsManager gameObjectsManager;
         private Vector2 startPosition;
         private Vector2 endPosition;
         private bool selected = false;
-        public void SetOnSelect(Action<IGameObject> action)
+        private ArrayList selectedGameObjects = new ArrayList();
+        private ArrayList spaceSelectedGameObjects = new ArrayList();
+        public void Initializing(GameObjectsManager gameObjectsManager)
         {
-            onSelect = action;
+            this.gameObjectsManager = gameObjectsManager;
         }
         public void StartSelect(Vector2 position)
         {
@@ -28,15 +33,56 @@ namespace Assets.GameObjects.Helpers
             if (selected)
             {
                 endPosition = position;
-                var camera = Camera.main;
-                var viewportBounds = SelectorUtils.GetViewportBounds(camera, startPosition, endPosition);
+                CheckSelected();
             }
         }
         public void EndSelected()
         {
+            selectedGameObjects.AddRange(spaceSelectedGameObjects);
+            spaceSelectedGameObjects.Clear();
             endPosition = Vector2.zero;
             startPosition = Vector2.zero;
             selected = false;
+        }
+        public void ClickOnGameObject(IGameObject gameObject)
+        {
+            if (gameObject.IsSelected())
+            {
+                gameObject.Deselect();
+                selectedGameObjects.Remove(gameObject);
+            }
+            else
+            {
+                gameObject.Select();
+                selectedGameObjects.Add(gameObject);
+            }
+        }
+        public void ClickNearGameObjects()
+        {
+            foreach (IGameObject gameObject in selectedGameObjects)
+            {
+                gameObject.Deselect();
+            }
+            selectedGameObjects.Clear();
+        }
+        private void CheckSelected()
+        {
+            var camera = Camera.main;
+            var viewportsBouns = SelectorUtils.GetViewportBounds(camera, startPosition, Input.mousePosition);
+            foreach (GameObject gameObject in gameObjectsManager.GetGameObjects())
+            {
+                var gameObjectC = gameObject.GetComponentInChildren<IGameObject>();
+                if (viewportsBouns.Contains(camera.WorldToViewportPoint(gameObject.transform.position)))
+                {
+                    gameObjectC.Select();
+                    spaceSelectedGameObjects.Add(gameObjectC);
+                }
+                else if (spaceSelectedGameObjects.Contains(gameObjectC))
+                {
+                    gameObjectC.Deselect();
+                    spaceSelectedGameObjects.Remove(gameObject);
+                }
+            }
         }
         void OnGUI()
         {
